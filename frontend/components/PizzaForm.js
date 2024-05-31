@@ -1,21 +1,37 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { updateFullName, selectSize, toggleTopping } from '../state/pizzaSlice';
+import { updateFullName, selectSize, toggleTopping, resetForm } from '../state/pizzaSlice';
+import { useCreateOrderMutation } from '../state/pizzaApi';
 
 export default function PizzaForm() {
   const dispatch = useDispatch();
   const formState = useSelector((st) => st.pizzaState)
+  const [createOrder, {error: creationError, isLoading: creatingOrder}] = useCreateOrderMutation()
 
   const handleSubmit = (e) => {
     e.preventDefault()
-  
+    const transformedData = {
+      fullName: formState.fullName,
+      size: formState.size,
+      toppings: Object.keys(formState).filter(key => formState[key] && key !== 'fullName' && key !== 'size')
+    }
+    console.log("Transformed data:", transformedData)
+    createOrder(transformedData)
+      .unwrap()
+      .then(data => {
+        console.log(data)
+        dispatch(resetForm())
+      })
+      .catch(err => {
+        console.log(err)
+      })
   }
 
   return (
     <form onSubmit={handleSubmit}>
       <h2>Pizza Form</h2>
-      {true && <div className='pending'>Order in progress...</div>}
-      {true && <div className='failure'>Order failed: fullName is required</div>}
+      {true && <div className='pending'>{creatingOrder && 'Order in progress'}</div>}
+      {true && <div className='failure'>{creationError && creationError.data.message}</div>}
 
       <div className="input-group">
         <div>

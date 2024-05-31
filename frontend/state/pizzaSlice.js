@@ -24,9 +24,11 @@ export const pizzaSlice = createSlice({
             const topping = action.payload;
             state[topping] = !state[topping];
         },
+        resetForm: () => initialFormState
+
     }
 })
 
-export const { updateFullName, selectSize, toggleTopping} = pizzaSlice.actions;
+export const { updateFullName, selectSize, toggleTopping, resetForm } = pizzaSlice.actions;
 
 export default pizzaSlice.reducer;
